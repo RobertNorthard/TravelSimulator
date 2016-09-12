@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -44,6 +43,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Location location;
     LocationManager locationManager;
 
+    ImageButton btnRouteType, btnSettings, btnUndo;
+    Button btnGo;
+
+    int numberOfPoints = 0;
+
+   ArrayList<Polyline> polyLineList = new ArrayList<Polyline>();
+    ArrayList<LatLng> latLngList = new ArrayList<LatLng>();
+
     private static final String TAG = MapsActivity.class.getName();
 
     @Override
@@ -60,17 +67,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        ImageButton btnRouteType = (ImageButton) findViewById(R.id.btnRouteType);
+        btnRouteType = (ImageButton) findViewById(R.id.btnRouteType);
         btnRouteType.setOnClickListener(this);
 
-        ImageButton btnSettings = (ImageButton) findViewById(R.id.btnSettings);
+        btnSettings = (ImageButton) findViewById(R.id.btnSettings);
         btnSettings.setOnClickListener(this);
 
-        ImageButton btnUndo = (ImageButton) findViewById(R.id.btnUndo);
+        btnUndo = (ImageButton) findViewById(R.id.btnUndo);
         btnUndo.setOnClickListener(this);
+        btnUndo.setVisibility(View.INVISIBLE);
 
-        Button btnGo = (Button) findViewById(R.id.btnGo);
+        btnGo = (Button) findViewById(R.id.btnGo);
         btnGo.setOnClickListener(this);
+        btnGo.setClickable(false);
     }
 
     @Override
@@ -103,8 +112,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             this.googleMap.setMinZoomPreference(15);
             this.googleMap.setOnMapClickListener(this);
 
-            // Add a marker in Sydney and move the camera
             myLocation = new LatLng(latitude, longitude);
+            latLngList.add(myLocation);
             this.googleMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
             this.googleMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
 
@@ -143,14 +152,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapClick(LatLng latLng) {
-        if (myDestination != null) {
-            googleMap.clear();
-            googleMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
-        }
-        myDestination = new LatLng(latLng.latitude, latLng.longitude);
-        googleMap.addMarker(new MarkerOptions().position(myDestination).title("Destination"));
 
-        String url =   makeURL(myLocation.latitude, myLocation.longitude, myDestination.latitude, myDestination.longitude);
+        myDestination = new LatLng(latLng.latitude, latLng.longitude);
+        numberOfPoints++;
+        googleMap.addMarker(new MarkerOptions().position(myDestination).title("Checkpoint #" + numberOfPoints));
+
+        constructURL(myLocation, myDestination);
+    }
+
+    public void constructURL(LatLng aLocation, LatLng aDestination){
+        String url = makeURL(aLocation.latitude, aLocation.longitude, aDestination.latitude, aDestination.longitude);
+
+        myLocation = aDestination;
+        latLngList.add(myLocation);
+
         connectAsyncTask c = new connectAsyncTask(url);
         c.execute();
     }
@@ -161,11 +176,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         urlString.append("?origin=");// from
         urlString.append(Double.toString(sourcelat));
         urlString.append(",");
-        urlString
-                .append(Double.toString( sourcelog));
+        urlString.append(Double.toString( sourcelog));
         urlString.append("&destination=");// to
-        urlString
-                .append(Double.toString( destlat));
+        urlString.append(Double.toString( destlat));
         urlString.append(",");
         urlString.append(Double.toString( destlog));
         urlString.append("&sensor=false&mode=driving&alternatives=true");
@@ -191,9 +204,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .color(Color.parseColor("#05b1fb"))//Google maps blue color
                     .geodesic(true)
             );
+            polyLineList.add(line);
+
+            if (numberOfPoints > 0){
+                btnUndo.setVisibility(View.VISIBLE);
+                changeGoButton(true);
+            }
         }
         catch (JSONException e) {
             Log.e(TAG, "Error - Unable to get draw path");
+        }
+    }
+
+    public void changeGoButton(Boolean go){
+        if (go){
+            btnGo.setText("Complete & Go!");
+            btnGo.setBackgroundColor(getResources().getColor(R.color.btnGoGreen));
+            btnGo.setClickable(true);
+        } else {
+            btnGo.setText("Select Route!");
+            btnGo.setBackgroundColor(getResources().getColor(R.color.btnGoRed));
+            btnGo.setClickable(false);
         }
     }
 
@@ -202,6 +233,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             switch(v.getId()) {
                 case R.id.btnGo:
                     Toast.makeText(this, "Pressed GO button", Toast.LENGTH_SHORT).show();
+                    constructURL(latLngList.get(latLngList.size()-1), latLngList.get(0));
                     break;
                 case R.id.btnRouteType:
                     Toast.makeText(this, "Pressed Route Type button", Toast.LENGTH_SHORT).show();
