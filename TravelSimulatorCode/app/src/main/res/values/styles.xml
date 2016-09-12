@@ -8,4 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="font1">
+        @import 'https://fonts.googleapis.com/css?family=Lato';
+    </style>
 </resources>

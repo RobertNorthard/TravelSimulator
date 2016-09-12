@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">WalkingSimulator</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="app_name">Walking Simulator</string>
+    <string name="title_activity_maps">Walking Simulator</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
