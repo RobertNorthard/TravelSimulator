@@ -1,18 +1,29 @@
 package com.walking.walkingsimulator;
 
+import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -46,6 +57,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ImageButton btnRouteType, btnSettings, btnUndo;
     Button btnGo;
 
+    boolean routeCycleMode = true;
+
     int numberOfPoints = 0;
 
    ArrayList<Polyline> polyLineList = new ArrayList<Polyline>();
@@ -54,8 +67,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String TAG = MapsActivity.class.getName();
 
     @Override
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-        return super.onCreateView(parent, name, context, attrs);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     @Override
@@ -63,15 +78,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        SharedPreferences sharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(this);
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("\n Username: "
+                + sharedPrefs.getString("prefUsername", "NULL"));
+
+
+        ActionBar bar = getActionBar();
+        bar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.blueActionDark)));
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         btnRouteType = (ImageButton) findViewById(R.id.btnRouteType);
         btnRouteType.setOnClickListener(this);
-
-        btnSettings = (ImageButton) findViewById(R.id.btnSettings);
-        btnSettings.setOnClickListener(this);
 
         btnUndo = (ImageButton) findViewById(R.id.btnUndo);
         btnUndo.setOnClickListener(this);
@@ -98,6 +122,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             // Load the map because we have permission already
             loadMap(location);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                Intent i = new Intent(this, Preferences.class);
+                startActivity(i);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
         }
     }
 
@@ -236,13 +276,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     constructURL(latLngList.get(latLngList.size()-1), latLngList.get(0));
                     break;
                 case R.id.btnRouteType:
-                    Toast.makeText(this, "Pressed Route Type button", Toast.LENGTH_SHORT).show();
+                    Drawable drawable = btnRouteType.getDrawable();
+                    if (drawable.getConstantState().equals(getResources().getDrawable(R.drawable.ic_repeat_black_48dp).getConstantState())){
+                        btnRouteType.setImageResource(R.drawable.ic_arrow_upward_black_48dp);
+                        routeCycleMode = false;
+                        Toast.makeText(this, "Set route to single path.", Toast.LENGTH_SHORT).show();
+                    } else if (drawable.getConstantState().equals(getResources().getDrawable(R.drawable.ic_arrow_upward_black_48dp).getConstantState())){
+                        btnRouteType.setImageResource(R.drawable.ic_repeat_black_48dp);
+                        routeCycleMode = true;
+                        Toast.makeText(this, "Set route to cycle path.", Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 case R.id.btnUndo:
                     Toast.makeText(this, "Pressed Undo button", Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.btnSettings:
-                    Toast.makeText(this, "Pressed Settings button", Toast.LENGTH_SHORT).show();
                     break;
             }
     }
@@ -311,5 +357,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         return poly;
     }
+
+
 
 }

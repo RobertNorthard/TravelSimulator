@@ -6,4 +6,7 @@
     <color name="btnGoRed"> #ffb3b3</color>
     <color name="btnGoGreen">#ccffdd</color>
 
+    <color name="blueAction">#87CEEB</color>
+    <color name="blueActionDark">#51b8e1</color>
+
 </resources>

@@ -2,8 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    tools:context="com.walking.walkingsimulator.MapsActivity"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.walking.walkingsimulator.MapsActivity">
 
     <fragment
         android:id="@+id/map"
@@ -14,29 +14,37 @@
         android:layout_gravity="right|top" />
 
     <ImageButton
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:text="Route"
         android:id="@+id/btnRouteType"
         android:layout_gravity="right|top"
-        android:layout_marginRight="25dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
         android:visibility="visible"
         android:clickable="false"
-        android:padding="20px"
         android:src="@drawable/ic_repeat_black_48dp"
-        android:background="#ffffff" />
+        android:adjustViewBounds="true"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+        android:background="@drawable/rounded_button" />
 
     <ImageButton
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:text="Undo"
         android:id="@+id/btnUndo"
         android:layout_gravity="right|top"
+        android:layout_marginRight="20dp"
         android:layout_marginTop="100dp"
-        android:layout_marginRight="25dp"
+        android:visibility="visible"
+        android:clickable="false"
         android:src="@drawable/ic_undo_black_48dp"
-        android:background="#ffffff" />
+        android:background="@drawable/rounded_button"
+        android:adjustViewBounds="true"
+        android:padding="10dp"
+        android:scaleType="fitCenter" />
+
 
     <Button
         android:layout_width="250dp"
@@ -50,20 +58,8 @@
         android:background="@drawable/border_style"
         android:textSize="10pt"
         android:textStyle="normal"
-        android:inputType="text" />
-
-    <ImageButton
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:text="Route"
-        android:layout_gravity="left|top"
-        android:visibility="visible"
-        android:clickable="false"
-        android:id="@+id/btnSettings"
-        android:layout_marginLeft="25dp"
-        android:layout_marginTop="25dp"
-        android:src="@drawable/ic_settings_black_48dp"
-        android:background="#ffffff" />
+        android:inputType="text"
+        android:textColor="#000000" />
 
 
 </FrameLayout>
